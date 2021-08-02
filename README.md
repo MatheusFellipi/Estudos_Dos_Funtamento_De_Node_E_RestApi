@@ -9,7 +9,7 @@ apenas para entender como funciona o node e as estutura de um api rest
   ou
   npm instal
   ```
-
+### rota a aplicação
   ```bash
   yarn dev 
   ou
