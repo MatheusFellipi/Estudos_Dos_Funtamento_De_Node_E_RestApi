@@ -43,6 +43,25 @@ app.post("/account", (request, response) => {
 
   return response.status(201).json(customers);
 });
+app.get("/account", (request, response) => {
+  const { cpf, name } = request.body;
+  //some retorna booleano
+  const customersAlreadyExists = customers.some(
+    (customers) => customers.cpf === cpf
+  );
+  if (customersAlreadyExists) {
+    return response.status(400).json({ error: "customers already exists!!" });
+  }
+
+  customers.push({
+    cpf,
+    name,
+    id: uuidv4(),
+    statement: [],
+  });
+
+  return response.status(201).json(customers);
+});
 
 app.get("/statement/", verifyIsExisteAccountCPF, (request, response) => {
   const { customer } = request;
@@ -63,6 +82,28 @@ app.post("/deposit", verifyIsExisteAccountCPF, (request, response) => {
   customer.statement.push(statementOperation);
 
   return response.status(201).json(statementOperation);
+});
+
+app.get("/statement/date", verifyIsExisteAccountCPF, (request, response) => {
+  const { customer } = request;
+  const { date } = request.query;
+
+  const dateFormat = new Date(date + " 00:00");
+  const statement = customer.statement.filter(
+    (statement) =>
+      statement.created_at.toDateString() ===
+      new Date(dateFormat).toDateString()
+  );
+
+  return response.json(statement);
+});
+app.put("/account", verifyIsExisteAccountCPF, (request, response) => {
+  const { customer } = request;
+  const { name } = request.body;
+
+  customer.name = name;
+
+  return response.status(201).send();
 });
 
 app.listen(3000, () => console.log("server runing"));
