@@ -23,13 +23,10 @@ function verifyIsExisteAccountCPF(request, response, next) {
  * name string,
  * statement[]
  */
-app.get("/", (request, response) => {
-  response.send("ok");
-});
+
 app.post("/account", (request, response) => {
   const { cpf, name } = request.body;
   //some retorna booleano
-  console.log(cpf, name);
   const customersAlreadyExists = customers.some(
     (customers) => customers.cpf === cpf
   );
@@ -47,10 +44,25 @@ app.post("/account", (request, response) => {
   return response.status(201).json(customers);
 });
 
-app.get("/statement/:cpf", verifyIsExisteAccountCPF, (request, response) => {
+app.get("/statement/", verifyIsExisteAccountCPF, (request, response) => {
   const { customer } = request;
 
   return response.json(customer.statement);
+});
+
+app.post("/deposit", verifyIsExisteAccountCPF, (request, response) => {
+  const { description, amount } = request.body;
+  const { customer } = request;
+
+  const statementOperation = {
+    description,
+    amount,
+    created_at: new Date(),
+    type: "credit",
+  };
+  customer.statement.push(statementOperation);
+
+  return response.status(201).json(statementOperation);
 });
 
 app.listen(3000, () => console.log("server runing"));
